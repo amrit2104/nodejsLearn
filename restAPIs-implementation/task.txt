@@ -1,0 +1,23 @@
+REST API - WILL SUPPORT JSON DATA
+
+We used mockaroo.com to generate fake json data to work.
+
+GET /users - List all users 
+1. GET /users - HTML Doc Render - DONE
+2. GET/api/users - List all users JSON - DONE
+GET /api/users/1 - Get the user with ID 1 - DONE
+GET /api/users/2 - Get the user with ID 2 - DONE
+
+1 & 2 are dynamic path parameters
+GET /api/users/:id 
+:id -> Variable - DONE
+
+POST /api/users - Create new user
+-> Browsers by default they do get request.
+
+PATCH /api/users/1 - Edit the user with ID 1
+Used PUT to patch and edit data in user with id 1 - DONE
+
+DELETE /api/users/1 - Delete the user with ID 1 - DONE
+
+All the above tasks are implemented and completed.
