@@ -1,4 +1,4 @@
 # NodejsLearning
 
-Checkout to master branch to check the changes.
+This is a repo to store all the codes related to my nodejs learning
 
