@@ -66,9 +66,9 @@ app.use(
         createEvent: (args) => {
             const event = {
                 _id: Math.random().toString(),
-                title: args.eventInput.title, //it will now directly fetch from the arguments passed
-                description: args.eventInput.description, //we are eventInput because that is where we are passing the argument
-                price: +args.eventInput.price, // + converts the string to a number
+                title: args.eventInput.title, //it will now directly fetch from the arguments passed.
+                description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
+                price: +args.eventInput.price, // + converts the string to a number.
                 date: args.eventInput.date
             }
             events.push(event);
