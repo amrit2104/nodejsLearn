@@ -65,7 +65,17 @@ app.use(
     rootValue: {
         events: () => {
             // return ['Romantic Cooking', 'Sailing', 'All-Night Coding']
-            return events;
+            // return events;
+            return Event.find()
+            .then(events => {
+                return events.map(event => {
+                    // return { ...event._doc, _id: event._doc._id.toString() }; // for the case where id is not-readable
+                    return { ...event._doc };
+                });
+            })
+            .catch(err => {
+                throw err;
+            });
         },
         createEvent: (args) => {
             // const event = {
@@ -100,7 +110,7 @@ app.use(
     graphiql: true
 }));
 
-mongoose
+    mongoose
     .connect(
     `mongodb+srv://${process.env.MONGO_USER}:${
         process.env.MONGO_PASSWORD
