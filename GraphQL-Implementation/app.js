@@ -3,10 +3,13 @@ const bodyParser = require('body-parser');
 const { graphqlHTTP } = require('express-graphql'); //It's a middleware function
 const { buildSchema } = require('graphql'); //this will generate a graphql schema object
 
+// we are going to pass the mongodb creds as env variables in nodemon.js and import mongoose here.
+const mongoose = require('mongoose');
 
+const Event = require('./models/event');
 const app = express();
 
-const events = [];
+// const events = [];
 
 app.use(bodyParser.json());
 
@@ -28,6 +31,7 @@ app.use(
     // ! means arrays non-nullable
     // here Event is a type or you can think of a class like TreeNode*
     // you don't need comma(',') is graphql, you can simply start a new line
+    
     schema: buildSchema(`
         type Event {
             _id: ID! 
@@ -64,20 +68,46 @@ app.use(
             return events;
         },
         createEvent: (args) => {
-            const event = {
-                _id: Math.random().toString(),
+            // const event = {
+            //     _id: Math.random().toString(),
+            //     title: args.eventInput.title, //it will now directly fetch from the arguments passed.
+            //     description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
+            //     price: +args.eventInput.price, // + converts the string to a number.
+            //     date: args.eventInput.date
+            // }
+            const event = new Event({
                 title: args.eventInput.title, //it will now directly fetch from the arguments passed.
                 description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
                 price: +args.eventInput.price, // + converts the string to a number.
-                date: args.eventInput.date
-            }
-            events.push(event);
+                date: new Date(args.eventInput.date)
+            })
+            // events.push(event);
             // const eventName = args.name;
-            return event;
+            return event
+                .save()
+                .then(result => {
+                    console.log(result);
+                    return {...result._doc}; //returns all the core properties that make up out document.
+                })
+                .catch(err => {
+                    console.log(err);
+                    throw err;
+                });
+            
         }
     },
     // the below statement will redirect to an URL where you gonna get nice user interface
     graphiql: true
 }));
 
-app.listen(3030);
+mongoose
+    .connect(
+    `mongodb+srv://${process.env.MONGO_USER}:${
+        process.env.MONGO_PASSWORD
+    }@cluster0.yzowgze.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority&appName=Cluster0`
+    ).then(() => {
+        app.listen(3030);
+    })
+    .catch( err => {
+        console.log(err);
+    });
