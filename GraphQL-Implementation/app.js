@@ -11,6 +11,44 @@ const Event = require('./models/event');
 const User = require('./models/user');
 const app = express();
 
+const events = eventIds => {
+    return Event.find({_id: {$in: eventIds}})
+    .then(events => {
+        return events.map(event => {
+            if (event && event._doc) {
+            return { 
+                ...event._doc, 
+                creator: user.bind(this, event.creator) 
+            };
+            }
+            else{
+                throw new Error("Event not found or invalid data");
+            }
+        })
+    })
+    .catch( err => {
+        throw err;
+    })
+}
+
+const user = userId => {
+    return User.findById(userId)
+    .then( user => {
+        if (user && user._doc) {
+        return { 
+            ...user._doc, 
+            createdEvents: events.bind(this, user._doc.createdEvents) 
+        };
+        }
+        else {
+            throw new Error("User not found or invalid data");
+        }
+    })
+    .catch( err => {
+        throw err;
+    })
+}
+
 // const events = [];
 
 app.use(bodyParser.json());
@@ -41,12 +79,14 @@ app.use(
             description: String!
             price: Float!
             date: String!
+            creator: User!
         }
 
         type User {
             _id: ID! 
             email: String!
             password: String
+            createdEvents: [Event!]
         }
 
         input EventInput {
@@ -81,10 +121,21 @@ app.use(
             // return ['Romantic Cooking', 'Sailing', 'All-Night Coding']
             // return events;
             return Event.find()
+            .populate('creator')
+            //populate is a method provided by mongoose to populate any relations at nose. 
+            //Here it will populate the creator field
             .then(events => {
                 return events.map(event => {
                     // return { ...event._doc, _id: event._doc._id.toString() }; // for the case where id is not-readable
-                    return { ...event._doc };
+                    if (event && event._doc) {
+                    return { 
+                        ...event._doc,
+                        creator: user.bind(this,event._doc)
+                     };
+                    }
+                    else {
+                        throw new Error("Event not found or invalid data");    
+                    }
                 });
             })
             .catch(err => {
@@ -104,7 +155,7 @@ app.use(
                 description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
                 price: +args.eventInput.price, // + converts the string to a number.
                 date: new Date(args.eventInput.date),
-                creator: '66b4e6e5b7c3e004a5b7133a'// creating a static user
+                creator: '66b539391d936f8da637728b'// creating a static user
             })
             // events.push(event);
             // const eventName = args.name;
@@ -113,7 +164,7 @@ app.use(
                 .save()
                 .then(result => {
                     createdEvent = {...result._doc};
-                    return User.findById('66b4e6e5b7c3e004a5b7133a') // static user
+                    return User.findById('66b539391d936f8da637728b') // static user
                     // console.log(result);
                     // return {...result._doc}; 
                     //returns all the core properties that make up out document.
