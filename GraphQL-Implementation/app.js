@@ -104,7 +104,7 @@ app.use(
                 description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
                 price: +args.eventInput.price, // + converts the string to a number.
                 date: new Date(args.eventInput.date),
-                creator: '66b4e6e5b7c3e004a5b7133a'
+                creator: '66b4e6e5b7c3e004a5b7133a'// creating a static user
             })
             // events.push(event);
             // const eventName = args.name;
@@ -113,7 +113,7 @@ app.use(
                 .save()
                 .then(result => {
                     createdEvent = {...result._doc};
-                    return User.findById('66b4e6e5b7c3e004a5b7133a')
+                    return User.findById('66b4e6e5b7c3e004a5b7133a') // static user
                     // console.log(result);
                     // return {...result._doc}; 
                     //returns all the core properties that make up out document.
