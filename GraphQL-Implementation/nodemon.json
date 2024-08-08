@@ -1,0 +1,7 @@
+{
+    "env": {
+        "MONGO_USER": "amrit2104",
+        "MONGO_PASSWORD": "Amrit123",
+        "MONGO_DB": "events-react-dev"
+    }
+}
