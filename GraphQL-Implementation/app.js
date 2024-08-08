@@ -1,53 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { graphqlHTTP } = require('express-graphql'); //It's a middleware function
-const { buildSchema } = require('graphql'); //this will generate a graphql schema object
 
 // we are going to pass the mongodb creds as env variables in nodemon.js and import mongoose here.
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
-const Event = require('./models/event');
-const User = require('./models/user');
+const graphQLSchema = require('./graphql/schema/index')
+const graphQLResolvers = require('./graphql/resolvers/index')
+
 const app = express();
 
-const events = eventIds => {
-    return Event.find({_id: {$in: eventIds}})
-    .then(events => {
-        return events.map(event => {
-            if (event && event._doc) {
-            return { 
-                ...event._doc, 
-                creator: user.bind(this, event.creator) 
-            };
-            }
-            else{
-                throw new Error("Event not found or invalid data");
-            }
-        })
-    })
-    .catch( err => {
-        throw err;
-    })
-}
 
-const user = userId => {
-    return User.findById(userId)
-    .then( user => {
-        if (user && user._doc) {
-        return { 
-            ...user._doc, 
-            createdEvents: events.bind(this, user._doc.createdEvents) 
-        };
-        }
-        else {
-            throw new Error("User not found or invalid data");
-        }
-    })
-    .catch( err => {
-        throw err;
-    })
-}
 
 // const events = [];
 
@@ -72,149 +35,9 @@ app.use(
     // here Event is a type or you can think of a class like TreeNode*
     // you don't need comma(',') is graphql, you can simply start a new line
     
-    schema: buildSchema(`
-        type Event {
-            _id: ID! 
-            title: String!
-            description: String!
-            price: Float!
-            date: String!
-            creator: User!
-        }
-
-        type User {
-            _id: ID! 
-            email: String!
-            password: String
-            createdEvents: [Event!]
-        }
-
-        input EventInput {
-            title: String!
-            description: String!
-            price: Float!
-            date: String!
-        }
-        
-        input UserInput {
-            email: String!
-            password: String!
-        }
-
-        type RootQuery { 
-            events: [Event!]!
-        }
-
-        type RootMutation {
-            createEvent(eventInput: EventInput): Event
-            createUser(userInput: UserInput): User
-        }
-
-        schema {
-            query: RootQuery
-            mutation: RootMutation
-        }
-    `),
+    schema: graphQLSchema,
     // the below rootValue thing is a resolver
-    rootValue: {
-        events: () => {
-            // return ['Romantic Cooking', 'Sailing', 'All-Night Coding']
-            // return events;
-            return Event.find()
-            .populate('creator')
-            //populate is a method provided by mongoose to populate any relations at nose. 
-            //Here it will populate the creator field
-            .then(events => {
-                return events.map(event => {
-                    // return { ...event._doc, _id: event._doc._id.toString() }; // for the case where id is not-readable
-                    if (event && event._doc) {
-                    return { 
-                        ...event._doc,
-                        creator: user.bind(this,event._doc)
-                     };
-                    }
-                    else {
-                        throw new Error("Event not found or invalid data");    
-                    }
-                });
-            })
-            .catch(err => {
-                throw err;
-            });
-        },
-        createEvent: (args) => {
-            // const event = {
-            //     _id: Math.random().toString(),
-            //     title: args.eventInput.title, //it will now directly fetch from the arguments passed.
-            //     description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
-            //     price: +args.eventInput.price, // + converts the string to a number.
-            //     date: args.eventInput.date
-            // }
-            const event = new Event({
-                title: args.eventInput.title, //it will now directly fetch from the arguments passed.
-                description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
-                price: +args.eventInput.price, // + converts the string to a number.
-                date: new Date(args.eventInput.date),
-                creator: '66b539391d936f8da637728b'// creating a static user
-            })
-            // events.push(event);
-            // const eventName = args.name;
-            let createdEvent;
-            return event
-                .save()
-                .then(result => {
-                    createdEvent = {...result._doc};
-                    return User.findById('66b539391d936f8da637728b') // static user
-                    // console.log(result);
-                    // return {...result._doc}; 
-                    //returns all the core properties that make up out document.
-                })
-                .then(user =>{
-                    if(!user) {
-                        throw new Error('User not found.')
-                    }
-                    //.push() is a method provided by mongoose
-                    user.createdEvents.push(event);
-                    return user.save();
-                })
-                .then(result => {
-                    return createdEvent;
-                })
-                .catch(err => {
-                    console.log(err);
-                    throw err;
-                });
-            
-        },
-        createUser: args => {
-
-            // filter to check that there should not be more than one user.
-            // In mongoose, we always go to the then block unless there is any connection error or something
-            return User.findOne({email: args.userInput.email})
-            .then(user => {
-                if(user) {
-                    throw new Error('User exists already.')
-                }
-                return bcrypt.hash(args.userInput.password, 12)
-            })
-            // here 12 is the no. of assault rounds which defines the security of the generated hash
-            // Since generating the below password is an asynchronous task and we are in a resolver, we want graphql or express graphql to wait for us so I will return this so that Express graphql knows that we have an asynchronous operation and it should go to that promise chain and wait for it to be resolved.
-            .then(hashedPassword => {
-                const user = new User({
-                    email: args.userInput.email,
-                    password: hashedPassword
-                })
-                return user.save();
-            })
-            .then(result => {
-                return { ...result._doc,password:null };
-            })
-            .catch(err => {
-                throw err;
-            });
-            
-        }
-    },
+    rootValue: graphQLResolvers,
     // the below statement will redirect to an URL where you gonna get nice user interface
     graphiql: true
 }));
