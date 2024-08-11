@@ -13,14 +13,24 @@
 #     }
 #   }
 # }
-query {
-  bookings {
-    createdAt
-    event {
-      title 
-      creator {
-        email
-      }
+# query {
+#   bookings {
+#     _id
+#     createdAt
+#     event {
+#       title 
+#       creator {
+#         email
+#       }
+#     }
+#   }
+# }
+
+mutation {
+  cancelBooking(bookingId: "66b8ad775d832205c3380ecf"){
+  title
+    creator {
+      email
     }
   }
 }
