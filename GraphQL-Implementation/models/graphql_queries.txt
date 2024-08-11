@@ -1,0 +1,64 @@
+# query {
+#   events {
+#     title
+#     # date
+#     creator {
+#       email
+#       # createdEvents {
+#       #   title
+#       #   creator {
+#       #     email
+#       #   }
+#       # }
+#     }
+#   }
+# }
+query {
+  bookings {
+    createdAt
+    event {
+      title 
+      creator {
+        email
+      }
+    }
+  }
+}
+# mutation {
+#   bookEvent(eventId: "66b545faf03edf6f58149f10") {
+#     _id
+#     createdAt
+#     user {
+#       password
+#     }
+#   }
+# }
+
+# mutation
+# query {
+#   events {
+#     creator{
+#     	email
+#       createdEvents {
+#         email
+#       }
+#     }
+#   }
+# }
+
+# mutation {
+#   createEvent(eventInput: {title: "!!Another Test-3", description: "User-3..", price: 39.99, date: "2024-08-06T11:48:29.264Z"}){
+#     creator {
+#       email
+#       _id
+#     }
+#   }
+# }
+
+# mutation {
+#   createUser(userInput:{email:"test3@tester.com", password: "tester@123"}) {
+#     email
+#     password    
+#     _id
+#   }
+# }
