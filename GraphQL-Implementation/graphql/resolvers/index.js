@@ -24,20 +24,21 @@ const events = eventIds => {
     .catch( err => {
         throw err;
     })
-}
+};
 
 const singleEvent = async eventId => {
-    try {
-        const event = await Event.findById(eventId);
-        return { 
-            ...event._doc, 
-            _id: event.id, 
-            creator: user.bind(this, event.creator)
-        };
-    } catch (err) {
+  try {
+    const event = await Event.findById(eventId);
+    return {
+      ...event._doc,
+      _id: event.id,
+      creator: user.bind(this, event.creator)
+    };
+    } 
+    catch (err) {
         throw err;
     }
-}
+};
 
 const user = userId => {
     return User.findById(userId)
@@ -57,7 +58,7 @@ const user = userId => {
     .catch( err => {
         throw err;
     })
-}
+};
 
 module.exports = {
     events: () => {
@@ -91,7 +92,7 @@ module.exports = {
             throw err;
         });
     },
-    booking: async () =>{
+    bookings: async () =>{
         try {
             const bookings = await Booking.find();
             return bookings.map(booking => {
@@ -184,7 +185,7 @@ module.exports = {
             throw err;
         });
     },
-    bookEvent: async eventId => {
+    bookEvent: async args => {
         const fetchedEvent = await Event.findOne({ _id: args.eventId });
         const booking = new Booking({
             user: '66b54537c9d53a5f71d8ce22',
@@ -199,5 +200,19 @@ module.exports = {
             createdAt: new Date(result._doc.createdAt).toISOString(),
             updatedAt: new Date(result._doc.createdAt).toISOString()
         }
-    }
-}
+    },
+    cancelBooking: async args => {
+        try {
+            const booking = await Booking.findById(args.bookingId).populate('event');
+            const event = {
+                ...booking.event._doc,
+                _id: booking.event.id,
+                creator: user.bind(this, booking.event._doc.creator)
+            };
+            await Booking.deleteOne({ _id: args.bookingId });
+            return event;
+        } catch (err) {
+          throw err;
+        }
+      }
+};
