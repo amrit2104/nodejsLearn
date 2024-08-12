@@ -19,26 +19,38 @@
 #     createdAt
 #     event {
 #       title 
-#       creator {
-#         email
-#       }
+#       date
 #     }
 #   }
 # }
 
+# query {
+#   events {
+#     title
+#     # creator {
+#     #   email
+#     #   createdEvents {
+#         _id
+#       # }
+#     # }
+#   }
+# }
+
 mutation {
-  cancelBooking(bookingId: "66b8ad775d832205c3380ecf"){
+  cancelBooking(bookingId: "66b8e8d873db1a6343e3728c"){
   title
     creator {
       email
     }
   }
 }
+
 # mutation {
-#   bookEvent(eventId: "66b545faf03edf6f58149f10") {
+#   bookEvent(eventId: "66b539722cd148eafea75ba8") {
 #     _id
 #     createdAt
 #     user {
+#       email
 #       password
 #     }
 #   }
@@ -57,10 +69,10 @@ mutation {
 # }
 
 # mutation {
-#   createEvent(eventInput: {title: "!!Another Test-3", description: "User-3..", price: 39.99, date: "2024-08-06T11:48:29.264Z"}){
+#   createEvent(eventInput: {title: "After Refractoring code Test-4", description: "User-3..", price: 39.99, date: "2024-08-11T11:48:29.264Z"}){
+#     _id
 #     creator {
 #       email
-#       _id
 #     }
 #   }
 # }
