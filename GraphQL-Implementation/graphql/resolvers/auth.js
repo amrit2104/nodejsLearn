@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../../models/user');
 
 module.exports = {
@@ -27,5 +28,27 @@ module.exports = {
         .catch(err => {
             throw err;
         });
+    },
+    login: async ({email, password}) => {
+        const user = await User.findOne({email: email});
+
+        if(!user){
+            throw new Error('User does not exist!');
+        }
+        // here password is the provided password and user.password is the incoming password from the database.
+        const isEqual = await bcrypt.compare(password, user.password);
+
+        if(!isEqual)
+        {
+            throw new Error('Password is incorrect!');
+        }
+
+        //synchronous task
+        const token = jwt.sign({userId: user.id, email: user.email}, 'somesupersecretkey', {
+            expiresIn: '1h' // this means the token will expire in one hour
+        });
+        // 'somesupersecretkey' : the second argument above is a string which is used to hash the token and this will be later required for validating it because this basically is your private key only someone who knows that key can validate this token and therefore it should be on your server and not exposed to your clients.
+
+        return { userId: user.id, token: token, tokenExpiration : 1 }
     }
 };

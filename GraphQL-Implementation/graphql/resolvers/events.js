@@ -1,5 +1,5 @@
 const Event = require('../../models/event');
-
+const User = require('../../models/user');
 const { transformEvent  } = require('./merge');
 
 module.exports = {
@@ -35,7 +35,11 @@ module.exports = {
             throw err;
         });
     },
-    createEvent: (args) => {
+    createEvent: (args,req) => {
+        if(!req.isAuth)
+        {
+            throw new Error('Unauthenticated');
+        }
         // const event = {
         //     _id: Math.random().toString(),
         //     title: args.eventInput.title, //it will now directly fetch from the arguments passed.
@@ -47,8 +51,8 @@ module.exports = {
             title: args.eventInput.title, //it will now directly fetch from the arguments passed.
             description: args.eventInput.description, //we are eventInput because that is where we are passing the argument.
             price: +args.eventInput.price, // + converts the string to a number.
-            date: dateToString(args.eventInput.date),
-            creator: '66b54537c9d53a5f71d8ce22'// creating a static user
+            date: new Date(args.eventInput.date),
+            creator: req.userId// creating a static user
         })
         // events.push(event);
         // const eventName = args.name;
@@ -62,7 +66,7 @@ module.exports = {
                 //     creator: user.bind(this, result._doc.creator)
                 // };
                 createdEvent = transformEvent(result);
-                return User.findById('66b54537c9d53a5f71d8ce22') // static user
+                return User.findById(req.userId); // static user
                 // console.log(result);
                 // return {...result._doc}; 
                 //returns all the core properties that make up out document.

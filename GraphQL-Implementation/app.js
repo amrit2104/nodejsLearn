@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { graphqlHTTP } = require('express-graphql'); //It's a middleware function
-
+const isAuth = require('./middleware/is-auth');
 // we are going to pass the mongodb creds as env variables in nodemon.js and import mongoose here.
 const mongoose = require('mongoose');
 
@@ -20,6 +20,8 @@ app.use(bodyParser.json());
 // app.get('/', (req,res,next) => {
 //     res.send('Hello World!');
 // })
+
+app.use(isAuth);
 
 app.use(
     '/graphql', 
