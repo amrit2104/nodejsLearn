@@ -21,6 +21,17 @@ app.use(bodyParser.json());
 //     res.send('Hello World!');
 // })
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*'); //Every Host or every client can send request here.
+    res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'); // Access for all the types of methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+});
+
 app.use(isAuth);
 
 app.use(
@@ -50,7 +61,7 @@ app.use(
         process.env.MONGO_PASSWORD
     }@cluster0.yzowgze.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority&appName=Cluster0`
     ).then(() => {
-        app.listen(3030);
+        app.listen(8000);
     })
     .catch( err => {
         console.log(err);
