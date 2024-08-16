@@ -18,7 +18,7 @@ class App extends Component {
     userId: null
   }
 
-  login = (token,userId, tokenExpiration) => {
+  login = (token, userId, tokenExpiration) => {
     this.setState({ token: token, userId: userId });
   }
 
@@ -31,13 +31,14 @@ class App extends Component {
       // React Fragment is basically an empty shell you could say. It doesnot render a real HTML element
       <BrowserRouter>
         <React.Fragment>
-          <AuthContext.Provider value={{
-              token: this.setState.token,
-              userId: this.setState.userId,
+          <AuthContext.Provider
+            value={{
+              token: this.state.token,
+              userId: this.state.userId,
               login: this.login,
               logout: this.logout
-              }}
-              >
+            }}
+          >
             <MainNavigation />
               <main className="main-content">
                 <Routes>
@@ -55,9 +56,9 @@ class App extends Component {
                     1. Replaced <Switch> with <Routes>.
                     2. Replaced <Redirect> with <Route path="/" element={<Navigate to="/auth" />} />.
                     Used element prop instead of component for routes. */}
-                    {!this.state.token && <Route path="/" element={<Navigate to="/auth" />} />}
-                    {this.state.token && <Route path="/" element={<Navigate to="/events" />} />}
-                    {this.state.token && <Route path="/auth" element={<Navigate to="/events" />} />}
+                    {!this.state.token && <Route path="/" element={<Navigate to="/auth" exact />} />}
+                    {this.state.token && <Route path="/" element={<Navigate to="/events" exact />} />}
+                    {this.state.token && <Route path="/auth" element={<Navigate to="/events" exact />} />}
                     {!this.state.token && <Route path="/auth" element={<AuthPage />} />}
                     <Route path="/events" element={<EventsPage />} />
                     {this.state.token && <Route path="/bookings" element={<BookingsPage />} />}

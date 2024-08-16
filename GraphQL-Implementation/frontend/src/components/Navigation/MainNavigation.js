@@ -10,8 +10,7 @@ import './MainNavigation.css';
 
 const mainNavigation = props => (
   <AuthContext.Consumer>
-    {
-      context => {
+    {context => {
         return (
           <header className="main-navigation">
             <div className="main-navigation__logo">
