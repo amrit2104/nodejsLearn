@@ -57,6 +57,7 @@ class App extends Component {
                     2. Replaced <Redirect> with <Route path="/" element={<Navigate to="/auth" />} />.
                     Used element prop instead of component for routes. */}
                     {!this.state.token && <Route path="/" element={<Navigate to="/auth" exact />} />}
+                    {!this.state.token && <Route path="/bookings" element={<Navigate to="/auth" exact />} />}
                     {this.state.token && <Route path="/" element={<Navigate to="/events" exact />} />}
                     {this.state.token && <Route path="/auth" element={<Navigate to="/events" exact />} />}
                     {!this.state.token && <Route path="/auth" element={<AuthPage />} />}
