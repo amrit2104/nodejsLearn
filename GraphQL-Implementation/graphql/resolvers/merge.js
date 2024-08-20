@@ -1,86 +1,83 @@
+const DataLoader = require('dataloader');
 const Event = require('../../models/event');
 const User = require('../../models/user');
 const { dateToString } = require('../../helpers/date');
 
+// DataLoader instances
+const eventLoader = new DataLoader(eventIds => {
+    return events(eventIds);
+});
+
+const userLoader = new DataLoader(userIds => {
+    return User.find({_id: {$in: userIds}});
+});
+
 const transformEvent = event => {
     return {
-        ...event._doc, 
+        ...event._doc,
         _id: event.id,
         // date : new Date(event._doc.date).toISOString(),
-        date : dateToString(event._doc.date),
-        creator: user.bind(this, event.creator)
+        date: dateToString(event._doc.date),
+        creator: userLoader.load(event.creator.toString())
     };
 }
 
 const transformBooking = booking => {
-    return { 
-        ...booking._doc, 
-        _id: booking.id, 
-        user: user.bind(this,booking._doc.user),
-        event: singleEvent.bind(this, booking._doc.event),
+    return {
+        ...booking._doc,
+        _id: booking.id,
+        user: userLoader.load(booking._doc.user.toString()),
+        event: eventLoader.load(booking._doc.event.toString()),
         createdAt: dateToString(booking._doc.createdAt),
         // createdAt: new Date(booking._doc.createdAt).toISOString(),
         // updatedAt: new Date(booking._doc.createdAt).toISOString()
-        updatedAt: dateToString(booking._doc.createdAt)
-    }
+        updatedAt: dateToString(booking._doc.updatedAt)
+    };
 }
 
-const events = eventIds => {
-    return Event.find({_id: {$in: eventIds}})
-    .then(events => {
-        return events.map(event => {
-            if (event && event._doc) {
-                // return { 
+const events = async eventIds => {
+    try {
+        const events = await Event.find({ _id: { $in: eventIds } });
+        // return { 
                 //     ...event._doc, 
                 //     _id: event.id,
                 //     date : new Date(event._doc.date).toISOString(),
                 //     creator: user.bind(this, event.creator) 
                 // };
-                return transformEvent(event);
-            }
-            else{
-                throw new Error("Event not found or invalid data");
-            }
-        })
-    })
-    .catch( err => {
-        throw err;
-    })
-};
-
-const singleEvent = async eventId => {
-  try {
-    const event = await Event.findById(eventId);
-    // return {
-    //   ...event._doc,
-    //   _id: event.id,
-    //   creator: user.bind(this, event.creator)
-    // };
-    return transformEvent(event);
-    } 
-    catch (err) {
+        return events.map(event => 
+            transformEvent(event)
+        );
+    } catch (err) {
         throw err;
     }
 };
 
-const user = userId => {
-    return User.findById(userId)
-    .then( user => {
-        if (user && user._doc) {
-        return { 
-            ...user._doc, 
+const singleEvent = async eventId => {
+    try {
+        const event = await eventLoader.load(eventId.toString());
+            // return {
+            //   ...event._doc,
+            //   _id: event.id,
+            //   creator: user.bind(this, event.creator)
+            // };
+        return event;
+    } catch (err) {
+        throw err;
+    }
+};
+
+const user = async userId => {
+    try {
+        const user = await userLoader.load(userId.toString());
+        return {
+            ...user._doc,
             _id: user.id,
-            createdEvents: events.bind(this, user._doc.createdEvents) 
+            createdEvents: () => eventLoader.loadMany(user._doc.createdEvents.map(event => event.toString()))
         };
         // graphql can return value as integer/string or even the result of a function as a value
-        }
-        else {
-            throw new Error("User not found or invalid data");
-        }
-    })
-    .catch( err => {
+    } catch (err) {
         throw err;
-    })
+    }
 };
 
 exports.transformEvent = transformEvent;
