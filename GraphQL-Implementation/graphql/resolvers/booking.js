@@ -9,7 +9,8 @@ module.exports = {
             throw new Error('Unauthenticated');
         }
         try {
-            const bookings = await Booking.find();
+            const bookings = await Booking.find({user: req.userId});
+            // find({user: req.userId}) is a filter here now, to filter by user id. So that the person who booked an event can now cancel the event.
             return bookings.map(booking => {
                 // return { 
                 //     ...booking._doc, 
