@@ -14,7 +14,7 @@ class EventsPage extends Component {
     isLoading: false,
     selectedEvent: null
   };
-  isActive = true;
+  // isActive = true;
 
   static contextType = AuthContext;
 
@@ -143,15 +143,17 @@ class EventsPage extends Component {
       })
       .then(resData => {
         const events = resData.data.events;
-        if (this.isActive) {
+        // console.log(this.isActive);
+        // if (this.isActive)
+        // {
           this.setState({ events: events, isLoading: false });
-        }
+        // }
       })
       .catch(err => {
         console.log(err);
-        if (this.isActive) {
+        // if (this.isActive) {
           this.setState({ isLoading: false });
-        }
+        // }
       });
   }
 
